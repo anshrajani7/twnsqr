@@ -45,72 +45,150 @@ class TabletLayout extends StatelessWidget {
                           .animate()
                           .fadeIn(delay: 600.ms, duration: 600.ms)
                           .slideX(begin: 0.2, duration: 600.ms),
-                      Stack(
-                        children: [
-                          Positioned(
-                            left: 27,
-                            top: 25, // Adjust to align with dot
-                            bottom: 5,
-                            child: CustomPaint(
-                              painter: DottedLinePainter(),
-                              size: const Size(2, double.infinity),
-                            ),
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.only(left: 19, top: 25),
-                                child: Container(
-                                  width: 15,
-                                  height: 15,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFFF2AC),
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                              )
-                                  .animate()
-                                  .scale(delay: 800.ms, duration: 400.ms)
-                                  .fadeIn(delay: 800.ms, duration: 400.ms),
-                              Expanded(
-                                child: _buildDateSection()
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: Obx(() {
+                          if (controller.isLoading.value) {
+                            return Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 100),
+                                child: CircularProgressIndicator()
                                     .animate()
-                                    .fadeIn(delay: 800.ms, duration: 600.ms)
-                                    .slideX(begin: 0.2, duration: 600.ms),
+                                    .fadeIn(duration: 300.ms),
                               ),
-                            ],
-                          ),
+                            );
+                          }
+
+                          if (controller.errorMessage.isNotEmpty) {
+                            return Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 100),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.error_outline, size: 48, color: Colors.grey)
+                                        .animate()
+                                        .scale(),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      controller.errorMessage.value,
+                                      style: TextStyle(color: Colors.grey[600]),
+                                    ).animate().fadeIn(),
+                                    const SizedBox(height: 16),
+                                    ElevatedButton(
+                                      onPressed: controller.retryLoading,
+                                      child: Text('Retry'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
                           // Activities list
-                          Padding(
-                            padding: const EdgeInsets.only(top: 50),
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              padding: const EdgeInsets.only(left: 50, right: 16),
-                              itemCount: controller.filteredActivities.length,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: ActivityCard(
-                                    activity:
-                                        controller.filteredActivities[index],
+                          return Stack(
+                            children: [
+                              Positioned(
+                                left: 27,
+                                top: 25, // Adjust to align with dot
+                                bottom: 5,
+                                child: CustomPaint(
+                                  painter: DottedLinePainter(),
+                                  size: const Size(2, double.infinity),
+                                ),
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 19, top: 25),
+                                    child: Container(
+                                      width: 15,
+                                      height: 15,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFFFFF2AC),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
                                   )
                                       .animate()
-                                      .fadeIn(
-                                        delay: (1000 + (index * 100)).ms,
-                                        duration: 600.ms,
-                                      )
-                                      .slideX(
-                                        begin: 0.2,
-                                        delay: (1000 + (index * 100)).ms,
-                                        duration: 600.ms,
-                                      ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
+                                      .scale(delay: 800.ms, duration: 400.ms)
+                                      .fadeIn(delay: 800.ms, duration: 400.ms),
+                                  Expanded(
+                                    child: _buildDateSection()
+                                        .animate()
+                                        .fadeIn(delay: 800.ms, duration: 600.ms)
+                                        .slideX(begin: 0.2, duration: 600.ms),
+                                  ),
+                                ],
+                              ),
+                              // Activities list
+                              Padding(
+                                padding: const EdgeInsets.only(top: 50),
+                                child: Obx(
+                                      ()=> ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    padding: const EdgeInsets.only(
+                                        left: 40, right: 16),
+                                    itemCount:
+                                    controller.filteredActivities.length,
+                                    itemBuilder: (context, index) {
+                                      return Stack(
+                                        children: [
+                                          Positioned(
+                                            left: -25,
+                                            top: 24,
+                                            child: Container(
+                                              width: 8,
+                                              height: 8,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey[300],
+                                                shape: BoxShape.circle,
+                                              ),
+                                            )
+                                                .animate()
+                                                .scale(
+                                              delay:
+                                              (1000 + (index * 100)).ms,
+                                              duration: 400.ms,
+                                            )
+                                                .fadeIn(
+                                              delay:
+                                              (1000 + (index * 100)).ms,
+                                              duration: 400.ms,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding:
+                                            const EdgeInsets.only(bottom: 12),
+                                            child: ActivityCard(
+                                              activity: controller
+                                                  .filteredActivities[index],
+                                            )
+                                                .animate()
+                                                .fadeIn(
+                                              delay:
+                                              (1000 + (index * 100)).ms,
+                                              duration: 600.ms,
+                                            )
+                                                .slideX(
+                                              begin: 0.2,
+                                              delay:
+                                              (1000 + (index * 100)).ms,
+                                              duration: 600.ms,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+
                       ),
                     ],
                   ),

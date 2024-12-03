@@ -6,6 +6,8 @@ class ActivityController extends GetxController {
   final RxList<Activity> activities = <Activity>[].obs;
   final RxString selectedCategory = 'All'.obs;
   final RxBool isLoading = false.obs;
+  final RxString errorMessage = ''.obs;
+  final RxInt selectedNavIndex = 0.obs;
 
   @override
   void onInit() {
@@ -13,9 +15,11 @@ class ActivityController extends GetxController {
     loadActivities();
   }
 
-  void loadActivities() {
+  Future<void>  loadActivities() async{
+    try {
     isLoading.value = true;
-      activities.value = [
+    await Future.delayed(const Duration(milliseconds: 300)); // Simulate network delay
+    activities.value = [
         Activity(
           id: '1',
           title: 'Beach Yoga',
@@ -61,24 +65,35 @@ class ActivityController extends GetxController {
           intensity: 'light', hasChildcare: true,
         ),
       ];
-      isLoading.value = false;
+    errorMessage.value = '';
+  } catch (e) {
+  errorMessage.value = 'Failed to load activities. Please try again.';
+  } finally {
+  isLoading.value = false;
+  }
   }
 
   List<Activity> get filteredActivities {
-    if (selectedCategory.value == 'All') {
-      return activities;
-    }
+    if (selectedCategory.value == 'All') return activities;
     return activities.where((activity) =>
     activity.category == selectedCategory.value).toList();
   }
 
   void setCategory(String category) {
     selectedCategory.value = category;
+    if (filteredActivities.isEmpty) {
+      errorMessage.value = 'No activities found for ${category}';
+    } else {
+      errorMessage.value = '';
+    }
   }
-
-  final RxInt selectedNavIndex = 0.obs;
 
   void updateNavIndex(int index) {
     selectedNavIndex.value = index;
+  }
+
+  void retryLoading() {
+    errorMessage.value = '';
+    loadActivities();
   }
 }
