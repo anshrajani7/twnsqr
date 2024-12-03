@@ -22,12 +22,11 @@ jobs:
         run: flutter pub get
 
       - name: Build
-        run: |
-          flutter build web --base-href /twnsqr/
-          cp build/web/index.html build/web/404.html
+        run: flutter build web --release --base-href /twnsqr/
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           personal_token: ${{ secrets.GH_PAGES_TOKEN }}
           publish_dir: ./build/web
+          force_orphan: true
